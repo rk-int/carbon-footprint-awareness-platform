@@ -9,7 +9,7 @@ def test_analyze_footprint(mock_generative_model):
     # Setup mock response for Vertex AI
     mock_instance = MagicMock()
     mock_response = MagicMock()
-    mock_response.text = "### A Moment of Reflection\n\nTest Reflection\n\n### Actionable Changes\n\n1. Change 1\n2. Change 2\n3. Change 3\n\n### A Shared Journey\n\nTest Journey"
+    mock_response.text = '{"carbon_analysis": "Test reflection text", "actionable_steps": [{"habit_change": "Use public transit", "estimated_impact_kg": 2.5}]}'
     mock_instance.generate_content.return_value = mock_response
     mock_generative_model.return_value = mock_instance
     

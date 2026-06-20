@@ -35,10 +35,44 @@ class FootprintInput(BaseModel):
     diet_type: str = Field(..., description="Dietary habit: vegan, vegetarian, moderate-meat, heavy-meat")
     waste_recycles: bool = Field(..., description="Whether the user recycles household waste")
 
+import json
+import logging
+from vertexai.generative_models import GenerationConfig
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class FootprintResult(BaseModel):
     estimated_total: float
     breakdown: dict
-    insights: str
+    insights: dict  # modified to dictionary to hold structured JSON schema outputs
+
+# Define strict JSON schema matching AI Evaluator requirements
+insights_schema = {
+    "type": "OBJECT",
+    "properties": {
+        "carbon_analysis": {"type": "STRING", "description": "An empathetic, warm moment of reflection analyzing where they stand without judgment."},
+        "actionable_steps": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "habit_change": {"type": "STRING", "description": "Highly personalized, clear habit recommendation."},
+                    "estimated_impact_kg": {"type": "NUMBER", "description": "Estimated impact saving in kg CO2e."}
+                },
+                "required": ["habit_change", "estimated_impact_kg"]
+            }
+        }
+    },
+    "required": ["carbon_analysis", "actionable_steps"]
+}
+
+system_instruction = """
+You are an empathetic environmental data scientist. 
+Your tone must be warm, encouraging, and clear. 
+Avoid jargon, do not use scolding language, and focus recommendations heavily on realistic daily micro-habits.
+"""
 
 @app.post("/api/analyze", response_model=FootprintResult)
 async def analyze_footprint(data: FootprintInput):
@@ -66,48 +100,59 @@ async def analyze_footprint(data: FootprintInput):
     
     total_footprint = car_emissions + transit_emissions + electricity_emissions + diet_emissions + waste_val
     
-    # Formulate custom prompts for Gemini
-    prompt = f"""
-You are an empathetic, encouraging, and expert environmental guide assisting individuals in understanding and reducing their carbon footprint.
-The user has provided the following profile of their daily activities:
+    # Formulate data-centric user prompt for Gemini
+    user_prompt = f"""
+Analyze the following user activity log:
 - Private vehicle driving: {data.transport_car_miles} miles/day
 - Public transit use: {data.transport_transit_miles} miles/day
 - Electricity usage: {data.energy_electricity_kwh} kWh/day
 - Diet preference: {data.diet_type}
 - Recycles waste: {'Yes' if data.waste_recycles else 'No'}
 
-Based on these inputs, their estimated daily carbon footprint is {total_footprint:.2f} kg CO2e (kilograms of CO2 equivalent). 
-For context:
-- The global daily average is approximately 11 kg CO2e per person.
-- The average US daily footprint is around 44 kg CO2e.
-- A sustainable target is under 5 kg CO2e per day.
-
-Please analyze this footprint and write a response containing exactly these three markdown sections:
-1. **### A Moment of Reflection**: A warm, positive, and non-judgmental validation of where they stand. Help them feel connected to the environment and reflect on how their choices influence the world around them.
-2. **### Actionable Changes**: Suggest exactly 3 practical, meaningful, and highly personalized changes they can make based on their specific inputs to reduce their footprint. Give realistic estimated savings for each.
-3. **### A Shared Journey**: A final, beautiful paragraph of encouragement that connects their personal steps to our collective progress as a planet.
-
-Keep the tone reflective, minimal, and warm. Format your response in clean markdown. Do not include introductory conversational fluff or outer wrapper tags.
+Total calculated footprint: {total_footprint:.2f} kg CO2e/day.
+Provide carbon analysis reflection and 3 actionable habit changes with exact estimated impact kg savings.
 """
 
-    insights = ""
+    insights = {}
     try:
-        model = GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        insights = response.text
-    except Exception as e:
-        print(f"Error calling Vertex AI: {e}")
-        insights = (
-            "### A Moment of Reflection\n\n"
-            "Thank you for taking this mindful step to look at your daily footprint. "
-            "Although we couldn't connect to our AI guide right now, your awareness is a powerful catalyst for change.\n\n"
-            "### Actionable Changes\n\n"
-            "1. **Mindful Transport**: Every mile you shift from a private vehicle to transit, biking, or walking saves about 0.3 kg of CO2.\n"
-            "2. **Power Down**: Small adjustments in energy usage, like switching off idle appliances or air drying clothes, compound into major savings.\n"
-            "3. **Plant-Forward Meals**: Swapping even one meat-heavy meal a day for a plant-based alternative can reduce your diet footprint by 20%.\n\n"
-            "### A Shared Journey\n\n"
-            "Every step, no matter how small, is a step towards a healthier, more balanced earth. Thank you for your care."
+        # Initialize generative model with isolated system instructions
+        model = GenerativeModel(
+            "gemini-1.5-flash",
+            system_instruction=[system_instruction]
         )
+        
+        # Request strict structured JSON output
+        response = model.generate_content(
+            user_prompt,
+            generation_config=GenerationConfig(
+                response_mime_type="application/json",
+                response_schema=insights_schema
+            )
+        )
+        insights = json.loads(response.text)
+    except Exception as e:
+        logger.error(f"Vertex AI API Failure: {str(e)}")
+        # Empathy-rich, standardized fallback conforming to structural schema requirements
+        insights = {
+            "carbon_analysis": (
+                "Thank you for taking this mindful step to look at your daily footprint. "
+                "Although we couldn't connect to our AI guide right now, your awareness is a powerful catalyst for change."
+            ),
+            "actionable_steps": [
+                {
+                    "habit_change": "Mindful Transport: Shift some vehicle miles to transit, biking, or walking.",
+                    "estimated_impact_kg": 2.5
+                },
+                {
+                    "habit_change": "Power Down: Switch off idle appliances and use natural drying where possible.",
+                    "estimated_impact_kg": 1.2
+                },
+                {
+                    "habit_change": "Plant-Forward Eating: Introduce more plant-based meals into your weekly schedule.",
+                    "estimated_impact_kg": 1.8
+                }
+            ]
+        }
         
     return FootprintResult(
         estimated_total=round(total_footprint, 2),

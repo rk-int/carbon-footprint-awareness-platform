@@ -94,7 +94,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show and populate Gemini Insights
         insightsCard.classList.remove('hidden');
-        insightsBody.innerHTML = parseMarkdown(data.insights);
+        
+        let insightsHtml = "";
+        if (data.insights && data.insights.carbon_analysis) {
+            insightsHtml += `<h3>A Moment of Reflection</h3>`;
+            insightsHtml += `<p>${data.insights.carbon_analysis}</p>`;
+        }
+        
+        if (data.insights && Array.isArray(data.insights.actionable_steps)) {
+            insightsHtml += `<h3>Actionable Changes</h3>`;
+            insightsHtml += `<ul>`;
+            data.insights.actionable_steps.forEach(step => {
+                insightsHtml += `<li><strong>${step.habit_change}</strong> (Saves ~${step.estimated_impact_kg} kg CO₂e)</li>`;
+            });
+            insightsHtml += `</ul>`;
+        }
+        
+        insightsBody.innerHTML = insightsHtml;
 
         // Smooth scroll to results
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });

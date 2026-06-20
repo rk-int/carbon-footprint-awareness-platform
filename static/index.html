@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint Awareness Platform</title>
+    <meta name="description" content="Track your daily carbon footprint and receive highly personalized, empathetic insights powered by Gemini AI to help reduce your impact.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-glow" id="bg-glow"></div>
+    <div class="ambient-fog"></div>
+    
+    <header class="app-header">
+        <div class="container header-container">
+            <div class="logo">
+                <span class="logo-leaf">☘</span>
+                <span class="logo-text">Aetheria</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#calculator" class="nav-link">Tracker</a>
+                <a href="#about" class="nav-link">Our Purpose</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title" id="main-heading">Reflect on Your Daily Footprint</h1>
+            <p class="hero-subtitle">
+                A minimal, mindful space to examine your day-to-day choices, understand their impact, and explore soft pathways toward ecological harmony.
+            </p>
+        </section>
+
+        <!-- Main Calculator Grid -->
+        <section class="calculator-grid" id="calculator">
+            <!-- Left Panel: Input Form -->
+            <div class="card form-card">
+                <h2 class="card-title">Daily Activity Input</h2>
+                <form id="footprint-form" class="activity-form">
+                    
+                    <div class="form-group-section">
+                        <h3 class="section-subtitle">Transportation</h3>
+                        <div class="form-group">
+                            <label for="car-miles">Private Vehicle (Miles driven today)</label>
+                            <input type="number" id="car-miles" name="transport_car_miles" min="0" step="0.1" value="12" required>
+                            <span class="input-hint">Average commuter drives about 20-30 miles daily.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="transit-miles">Public Transit (Miles traveled today)</label>
+                            <input type="number" id="transit-miles" name="transport_transit_miles" min="0" step="0.1" value="0" required>
+                            <span class="input-hint">Includes bus, light rail, subway, and commuter trains.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group-section">
+                        <h3 class="section-subtitle">Home & Energy</h3>
+                        <div class="form-group">
+                            <label for="electricity-kwh">Electricity Usage (Estimated daily kWh)</label>
+                            <input type="number" id="electricity-kwh" name="energy_electricity_kwh" min="0" step="0.1" value="15" required>
+                            <span class="input-hint">An average home uses about 30 kWh per day.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group-section">
+                        <h3 class="section-subtitle">Diet & Nourishment</h3>
+                        <div class="form-group">
+                            <label for="diet-type">Diet Style</label>
+                            <select id="diet-type" name="diet_type" required>
+                                <option value="vegan">Vegan (Strictly plant-based)</option>
+                                <option value="vegetarian" selected>Vegetarian (No meat, includes dairy/eggs)</option>
+                                <option value="moderate-meat">Moderate Meat (Few meals with poultry/beef)</option>
+                                <option value="heavy-meat">Heavy Meat (Beef, pork, or poultry daily)</option>
+                            </select>
+                            <span class="input-hint">Food production accounts for over a quarter of global emissions.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group-section">
+                        <h3 class="section-subtitle">Waste & Mindful Habits</h3>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label" for="recycles">
+                                <input type="checkbox" id="recycles" name="waste_recycles" checked>
+                                <span class="checkbox-custom"></span>
+                                I recycle my household waste (paper, plastic, glass, tins)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="btn-submit">
+                        <span class="btn-text">Reveal Footprint</span>
+                        <span class="btn-loader" id="btn-loader"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Panel: Results & Visualizations -->
+            <div class="results-panel">
+                <div class="card result-card initial-state" id="result-card">
+                    <div class="initial-msg" id="initial-msg">
+                        <div class="reflective-icon">☘</div>
+                        <p class="reflective-text">Enter your details and click <strong>Reveal Footprint</strong> to begin your reflection.</p>
+                    </div>
+
+                    <div class="result-content hidden" id="result-content">
+                        <h2 class="card-title text-center">Your Impact Reflection</h2>
+                        
+                        <!-- Footprint Gauge -->
+                        <div class="gauge-container">
+                            <svg class="footprint-gauge" viewBox="0 0 200 120" id="footprint-gauge-svg">
+                                <defs>
+                                    <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="var(--color-sage)" />
+                                        <stop offset="50%" stop-color="var(--color-gold)" />
+                                        <stop offset="100%" stop-color="var(--color-terracotta)" />
+                                    </linearGradient>
+                                </defs>
+                                <path class="gauge-bg" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#e8e2d8" stroke-width="12" stroke-linecap="round" />
+                                <path class="gauge-fill" id="gauge-fill" d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="url(#gauge-gradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+                            </svg>
+                            <div class="gauge-labels">
+                                <span class="gauge-value" id="gauge-value">0.0</span>
+                                <span class="gauge-unit">kg CO<sub>2</sub>e / day</span>
+                            </div>
+                        </div>
+
+                        <!-- Relative Comparison -->
+                        <div class="comparison-bar-container">
+                            <p class="comparison-text" id="comparison-text">Evaluating footprint context...</p>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Breakdown Table -->
+                        <h3 class="breakdown-title">Footprint Breakdown</h3>
+                        <div class="table-wrapper">
+                            <table class="breakdown-table" id="breakdown-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th class="text-right">Emissions (kg CO₂e)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="breakdown-body">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GenAI Insights Card -->
+                <div class="card insights-card hidden" id="insights-card">
+                    <h2 class="card-title flex-align">
+                        <span class="insights-icon">✦</span>
+                        <span>Personalized Insights by Gemini</span>
+                    </h2>
+                    <div class="insights-body markdown-content" id="insights-body">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about-section" id="about">
+            <h2 class="section-title">The Philosophy of Aetheria</h2>
+            <div class="about-grid">
+                <div class="about-item">
+                    <h3>Empathy over Judgment</h3>
+                    <p>We believe that tracking our environmental impact should not feel like an exercise in guilt. True sustainability is born from mindful appreciation and gradual, loving alignment with our environment.</p>
+                </div>
+                <div class="about-item">
+                    <h3>Individual Power</h3>
+                    <p>While systemic change is crucial, our daily micro-choices shape cultural norms, drive market demand, and ripple outward in ways we may never fully trace.</p>
+                </div>
+                <div class="about-item">
+                    <h3>Empowered by Gemini AI</h3>
+                    <p>Using Google's state-of-the-art Gemini model, we craft insights tailored specifically to your habits. No generic suggestions—just simple, gentle adjustments suited to your life.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container footer-content">
+            <p>&copy; 2026 Aetheria Platform. Designed with care for our shared home.</p>
+            <p class="footer-subtext">Powered by Google Cloud Run and Vertex AI Gemini.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

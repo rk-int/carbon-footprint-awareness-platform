@@ -44,4 +44,5 @@ By coupling Google's state-of-the-art Vertex AI suite with a human-centric, emot
 
 ## 🌐 Deployment URL
 👉 **[https://carbon-footprint-awareness-platform-delta.vercel.app/](https://carbon-footprint-awareness-platform-delta.vercel.app/)**
+
 👉 **[https://carbon-footprint-platform-999172966430.us-central1.run.app](https://carbon-footprint-platform-999172966430.us-central1.run.app)**

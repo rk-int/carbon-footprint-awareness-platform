@@ -43,4 +43,5 @@ The implementation and deployment followed a continuous integration pattern:
 By coupling Google's state-of-the-art Vertex AI suite with a human-centric, emotionally warm design, this platform successfully changes how individuals perceive their environmental footprint. It transforms carbon tracking from a tedious accounting chore into a deeply personal, empowering journey towards sustainability.
 
 ## 🌐 Deployment URL
+👉 **[https://carbon-footprint-awareness-platform-delta.vercel.app/](https://carbon-footprint-awareness-platform-delta.vercel.app/)**
 👉 **[https://carbon-footprint-platform-999172966430.us-central1.run.app](https://carbon-footprint-platform-999172966430.us-central1.run.app)**

@@ -1,4 +1,4 @@
-# [Challenge 3] Carbon Footprint Awareness Platform
+# Carbon Footprint Awareness Platform
 
 A professional, minimal, and emotionally resonant web application designed to help individuals understand, track, and reduce their carbon footprint through simple actions and personalized insights powered by Google Cloud and Gemini AI.
 
